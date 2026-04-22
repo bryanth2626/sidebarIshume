@@ -1,0 +1,88 @@
+/* TARJETA */
+.tarjeta-tabla {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* HEADER */
+.header-tabla {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.header-tabla h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* BUSCADOR */
+.buscador {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+/* TABLA */
+.tabla-personalizada {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ENCABEZADO */
+.tabla-personalizada thead {
+    background: #f5e8dc;
+}
+
+.tabla-personalizada th {
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+}
+
+/* FILAS */
+.tabla-personalizada td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* HOVER */
+.tabla-personalizada tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* COLORES */
+.color-total {
+    color: #16a34a; /* verde */
+    font-weight: 600;
+}
+
+.color-adelanto {
+    color: #7c3aed; /* morado */
+    font-weight: 600;
+}
+
+.color-saldo {
+    color: #2563eb; /* azul */
+    font-weight: 600;
+}
+
+/* BOTÓN ELIMINAR */
+.btn-eliminar {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #f97316;
+    color: #f97316;
+    text-decoration: none;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+    background: #f97316;
+    color: white;
+}

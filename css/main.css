@@ -1,0 +1,109 @@
+/* RESET */
+body {
+    margin: 0;
+    display: flex;
+    font-family: 'Segoe UI', sans-serif;
+    background: #e9e9e9;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px; /* 🔥 más delgado */
+    height: 100vh;
+    background: #efefef;
+
+    padding: 15px 5px 15px 15px;
+    box-sizing: border-box;
+}
+
+/* LOGO */
+.logo-container {
+    text-align: flex-start;
+    margin-bottom: 10px;
+}
+
+.logo {
+    margin-left: 30px; /* 🔥 ajusta a tu gusto */
+    width: 80px;
+}
+
+/* MENÚ */
+.menu {
+    margin-top: 5px;
+}
+
+/* ITEM DEL MENÚ */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    text-decoration: none;
+    color: #2c3e50;
+
+    padding: 10px 12px;
+    margin-bottom: 6px;
+
+    border-radius: 12px;
+
+    background: transparent;
+    transition: all 0.2s ease;
+
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* HOVER */
+.menu-item:hover {
+    background: #e5e5e5;
+}
+
+/* ACTIVO */
+.menu-item.active {
+    background: #efe3d8;
+    color: #f97316;
+    font-weight: 600;
+}
+
+/* ICONOS */
+.menu-item span,
+.menu-item i {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* CONTENIDO */
+.content {
+    flex: 1;
+
+    /* 🔥 más espacio para que no esté pegado */
+    padding: 30px 40px 30px 30px;
+}
+
+/* SCROLL BONITO */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+/* 🔥 CONTENEDOR GENERAL */
+.contenedor-modulo {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* TARJETA FORMULARIO */
+.tarjeta-proveedor {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+/* CUERPO */
+.cuerpo-tarjeta {
+    width: 100%;
+}

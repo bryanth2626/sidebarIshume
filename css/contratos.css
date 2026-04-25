@@ -1,0 +1,128 @@
+/* ============================================================
+   contratos_33.css  —  ISHUME
+   ETAPA 1 / 3  (≈ 33 % de avance)
+   ============================================================ */
+
+/* ── Reset mínimo ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    color: #2c3e50;
+    padding: 30px 20px;
+}
+
+/* ── Badge de etapa ── */
+.badge-etapa {
+    display: inline-block;
+    background: #f97316;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+}
+
+/* ── Título ── */
+.titulo-modulo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* ── Tarjeta ── */
+.card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 28px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    max-width: 900px;
+    margin: 0 auto 30px;
+}
+
+/* ── Sección dentro de la tarjeta ── */
+.seccion-titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 20px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.seccion-titulo:first-of-type { margin-top: 0; }
+
+/* ── Grid de campos ── */
+.fila {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+.fila-3 { grid-template-columns: repeat(3, 1fr); }
+.fila-2 { grid-template-columns: repeat(2, 1fr); }
+.fila-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Label + Input ── */
+.campo label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #dde1e7;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #fff;
+    color: #2c3e50;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: auto;
+}
+
+.campo input:focus,
+.campo select:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+
+/* ── Separador ── */
+hr.sep {
+    border: none;
+    border-top: 1px solid #f0f2f5;
+    margin: 22px 0;
+}
+
+/* ── Botón ── */
+.btn-guardar {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    margin: 24px auto 0;
+    padding: 11px 0;
+    background: #f97316;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-guardar:hover { background: #ea580c; }
+
+/* ── Responsive básico ── */
+@media (max-width: 640px) {
+    .fila-3, .fila-4 { grid-template-columns: 1fr; }
+    .fila-2           { grid-template-columns: 1fr; }
+}

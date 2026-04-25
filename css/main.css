@@ -6,30 +6,40 @@ body {
     background: #e9e9e9;
 }
 
-/* SIDEBAR */
+/* =========================
+   SIDEBAR PROFESIONAL AZUL
+========================= */
 .sidebar {
-    width: 220px; /* 🔥 más delgado */
+    width: 220px;
     height: 100vh;
-    background: #efefef;
+
+    /* 🔥 Azul corporativo elegante */
+    background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
 
     padding: 15px 5px 15px 15px;
     box-sizing: border-box;
+
+    box-shadow: 4px 0 15px rgba(0,0,0,0.12);
+    overflow-y: auto;
 }
 
 /* LOGO */
 .logo-container {
     text-align: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .logo {
-    margin-left: 30px; /* 🔥 ajusta a tu gusto */
+    margin-left: 30px;
     width: 80px;
+
+    /* 🔥 opcional para resaltar */
+    filter: drop-shadow(0 2px 6px rgba(255,255,255,0.15));
 }
 
 /* MENÚ */
 .menu {
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 /* ITEM DEL MENÚ */
@@ -39,15 +49,17 @@ body {
     gap: 12px;
 
     text-decoration: none;
-    color: #2c3e50;
 
-    padding: 10px 12px;
-    margin-bottom: 6px;
+    /* 🔥 Texto claro */
+    color: #e2e8f0;
+
+    padding: 12px 14px;
+    margin-bottom: 8px;
 
     border-radius: 12px;
 
     background: transparent;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 
     font-weight: 500;
     font-size: 14px;
@@ -55,14 +67,21 @@ body {
 
 /* HOVER */
 .menu-item:hover {
-    background: #e5e5e5;
+    background: rgba(255,255,255,0.08);
+
+    /* 🔥 naranja marca */
+    color: #f97316;
+
+    transform: translateX(4px);
 }
 
 /* ACTIVO */
 .menu-item.active {
-    background: #efe3d8;
+    background: rgba(249,115,22,0.18);
     color: #f97316;
     font-weight: 600;
+
+    border-left: 4px solid #f97316;
 }
 
 /* ICONOS */
@@ -76,20 +95,19 @@ body {
 /* CONTENIDO */
 .content {
     flex: 1;
-
-    /* 🔥 más espacio para que no esté pegado */
     padding: 30px 40px 30px 30px;
 }
 
 /* SCROLL BONITO */
 .sidebar::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: rgba(255,255,255,0.2);
     border-radius: 10px;
 }
+
 /* 🔥 CONTENEDOR GENERAL */
 .contenedor-modulo {
     max-width: 1100px;
@@ -101,6 +119,8 @@ body {
     background: #fff;
     border-radius: 15px;
     padding: 20px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
 /* CUERPO */

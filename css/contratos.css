@@ -1,6 +1,6 @@
 /* ============================================================
-   contratos_33.css  —  ISHUME
-   ETAPA 1 / 3  (≈ 33 % de avance)
+   contratos_66.css  —  ISHUME
+   ETAPA 2 / 3  (≈ 66 % de avance)
    ============================================================ */
 
 /* ── Reset mínimo ── */
@@ -35,6 +35,20 @@ body {
     margin-bottom: 20px;
 }
 
+/* ── Mensaje éxito ── */
+.mensaje-exito {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    font-weight: 600;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* ── Tarjeta ── */
 .card {
     background: #fff;
@@ -45,7 +59,7 @@ body {
     margin: 0 auto 30px;
 }
 
-/* ── Sección dentro de la tarjeta ── */
+/* ── Sección ── */
 .seccion-titulo {
     font-size: 15px;
     font-weight: 600;
@@ -96,6 +110,16 @@ body {
     box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
 }
 
+.campo input[readonly] {
+    background: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* ── Bloque oculto ── */
+.bloque-dinamico {
+    display: none;
+}
+
 /* ── Separador ── */
 hr.sep {
     border: none;
@@ -121,7 +145,10 @@ hr.sep {
 }
 .btn-guardar:hover { background: #ea580c; }
 
-/* ── Responsive básico ── */
+/* ── Colores saldo ── */
+.color-saldo  { color: #2563eb; font-weight: 600; }
+
+/* ── Responsive ── */
 @media (max-width: 640px) {
     .fila-3, .fila-4 { grid-template-columns: 1fr; }
     .fila-2           { grid-template-columns: 1fr; }

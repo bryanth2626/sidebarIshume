@@ -1,6 +1,6 @@
 /* ============================================================
-   contratos_66.css  —  ISHUME
-   ETAPA 2 / 3  (≈ 66 % de avance)
+   contratos_80.css  —  ISHUME
+   ETAPA 3 / 4  (≈ 80 % de avance)
    ============================================================ */
 
 /* ── Reset mínimo ── */
@@ -115,9 +115,16 @@ body {
     cursor: not-allowed;
 }
 
-/* ── Bloque oculto ── */
-.bloque-dinamico {
-    display: none;
+/* ── Bloques dinámicos ── */
+.bloque-dinamico { display: none; }
+
+/* ── Bloque secundario (sesión, evento, testigos) ── */
+.bloque-seccion {
+    background: #fafafa;
+    border: 1px solid #f0f2f5;
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 10px;
 }
 
 /* ── Separador ── */
@@ -127,7 +134,7 @@ hr.sep {
     margin: 22px 0;
 }
 
-/* ── Botón ── */
+/* ── Botones ── */
 .btn-guardar {
     display: block;
     width: 100%;
@@ -145,11 +152,47 @@ hr.sep {
 }
 .btn-guardar:hover { background: #ea580c; }
 
-/* ── Colores saldo ── */
-.color-saldo  { color: #2563eb; font-weight: 600; }
+.btn-agregar {
+    background: #f0f2f5;
+    border: 1px solid #dde1e7;
+    color: #2c3e50;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-agregar:hover { background: #e2e6ea; }
+
+.btn-quitar {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+.btn-quitar:hover { background: #fca5a5; }
+
+/* ── Fila testigo ── */
+.fila-testigo {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+/* ── Color saldo ── */
+.color-saldo { color: #2563eb; font-weight: 600; }
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-    .fila-3, .fila-4 { grid-template-columns: 1fr; }
-    .fila-2           { grid-template-columns: 1fr; }
+    .fila-3, .fila-4    { grid-template-columns: 1fr; }
+    .fila-2             { grid-template-columns: 1fr; }
+    .fila-testigo       { grid-template-columns: 1fr; }
 }

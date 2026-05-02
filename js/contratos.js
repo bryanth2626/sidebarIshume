@@ -1,9 +1,10 @@
 /* ============================================================
-   contratos_66.js  —  ISHUME
-   ETAPA 2 / 3  (≈ 66 % de avance)
-   · Cálculo automático de saldo
-   · Select de servicios dinámico según tipo
-   · Mostrar/ocultar campos según tipo de contrato
+   contratos_80.js  —  ISHUME
+   ETAPA 3 / 4  (≈ 80 % de avance)
+   · Cálculo de saldo
+   · Select dinámico por tipo
+   · Mostrar/ocultar bloques: sesión foto, evento video, sesión especial
+   · Agregar / quitar testigos dinámicamente
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,8 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const elAdelanto = document.getElementById('adelanto');
     const elSaldo    = document.getElementById('saldo');
 
-    const colCantidad   = document.getElementById('colCantidad');
-    const colTipoSesion = document.getElementById('colTipoSesion');
+    const colCantidad        = document.getElementById('colCantidad');
+    const colTipoSesion      = document.getElementById('colTipoSesion');
+    const bloqueSesionFoto   = document.getElementById('bloqueSesionFoto');
+    const bloqueEventoVideo  = document.getElementById('bloqueEventoVideo');
+    const bloqueSesionEsp    = document.getElementById('bloqueSesionEspecial');
 
     /* ================================================
        SERVICIOS POR TIPO
@@ -40,6 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /* ================================================
+       HELPERS
+    ================================================ */
+    const mostrar = el => { if (el) el.style.display = 'block'; };
+    const ocultar = el => { if (el) el.style.display = 'none';  };
+
+    /* ================================================
        CALCULAR SALDO
     ================================================ */
     function calcularSaldo() {
@@ -47,12 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const a = parseFloat(elAdelanto?.value) || 0;
         if (elSaldo) elSaldo.value = (t - a).toFixed(2);
     }
-
-    /* ================================================
-       HELPERS MOSTRAR / OCULTAR
-    ================================================ */
-    const mostrar = el => { if (el) el.style.display = 'block'; };
-    const ocultar = el => { if (el) el.style.display = 'none';  };
 
     /* ================================================
        ACTUALIZAR FORMULARIO SEGÚN TIPO
@@ -69,13 +73,53 @@ document.addEventListener('DOMContentLoaded', () => {
             elServicio.appendChild(opt);
         });
 
-        // Ocultar columnas opcionales
+        // Ocultar todo
         ocultar(colCantidad);
         ocultar(colTipoSesion);
+        ocultar(bloqueSesionFoto);
+        ocultar(bloqueEventoVideo);
+        ocultar(bloqueSesionEsp);
 
-        if (val === "1") mostrar(colCantidad);    // Promoción → N° Alumnos
-        if (val === "3") mostrar(colTipoSesion);  // Sesión Especial → Tipo sesión
+        if (val === "1") {
+            mostrar(colCantidad);
+            mostrar(bloqueSesionFoto);
+        }
+        if (val === "2") {
+            mostrar(bloqueEventoVideo);
+        }
+        if (val === "3") {
+            mostrar(colTipoSesion);
+            mostrar(bloqueSesionEsp);
+        }
     }
+
+    /* ================================================
+       TESTIGOS — agregar / quitar
+    ================================================ */
+    window.agregarTestigo = function () {
+        const container = document.getElementById('testigosContainer');
+        const div = document.createElement('div');
+        div.classList.add('fila-testigo');
+        div.innerHTML = `
+            <div class="campo">
+                <label>DNI</label>
+                <input type="text" name="testigo_dni[]" placeholder="12345678" class="form-control">
+            </div>
+            <div class="campo">
+                <label>Nombre</label>
+                <input type="text" name="testigo_nombre[]" placeholder="Nombre" class="form-control">
+            </div>
+            <div class="campo">
+                <label>Apellidos</label>
+                <input type="text" name="testigo_apellidos[]" placeholder="Apellidos" class="form-control">
+            </div>
+            <div class="campo" style="padding-top:20px;">
+                <button type="button" class="btn-quitar"
+                        onclick="this.closest('.fila-testigo').remove()">✕ Quitar</button>
+            </div>
+        `;
+        container.appendChild(div);
+    };
 
     /* ================================================
        EVENTOS

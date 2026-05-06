@@ -1,6 +1,6 @@
 /* ============================================================
-   contratos_80.css  —  ISHUME
-   ETAPA 3 / 4  (≈ 80 % de avance)
+   contratos_100.css  —  ISHUME
+   ETAPA 4 / 4  (100 % — versión final)
    ============================================================ */
 
 /* ── Reset mínimo ── */
@@ -16,7 +16,7 @@ body {
 /* ── Badge de etapa ── */
 .badge-etapa {
     display: inline-block;
-    background: #f97316;
+    background: #16a34a;
     color: #fff;
     font-size: 12px;
     font-weight: 700;
@@ -44,7 +44,7 @@ body {
     padding: 10px 16px;
     margin-bottom: 18px;
     font-weight: 600;
-    max-width: 900px;
+    max-width: 960px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -55,7 +55,7 @@ body {
     border-radius: 15px;
     padding: 28px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto 30px;
 }
 
@@ -118,7 +118,7 @@ body {
 /* ── Bloques dinámicos ── */
 .bloque-dinamico { display: none; }
 
-/* ── Bloque secundario (sesión, evento, testigos) ── */
+/* ── Bloque seccion ── */
 .bloque-seccion {
     background: #fafafa;
     border: 1px solid #f0f2f5;
@@ -132,6 +132,17 @@ hr.sep {
     border: none;
     border-top: 1px solid #f0f2f5;
     margin: 22px 0;
+}
+
+/* ── Checkbox ── */
+.check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
 }
 
 /* ── Botones ── */
@@ -187,12 +198,35 @@ hr.sep {
     margin-bottom: 10px;
 }
 
-/* ── Color saldo ── */
-.color-saldo { color: #2563eb; font-weight: 600; }
+/* ── Tabla ── */
+.card-tabla {
+    background: #fff;
+    border-radius: 15px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    max-width: 960px;
+    margin: 0 auto;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+thead { background: #f5e8dc; }
+th { padding: 11px 14px; text-align: left; font-weight: 600; white-space: nowrap; }
+td { padding: 11px 14px; border-bottom: 1px solid #f0f2f5; color: #444; vertical-align: top; }
+tbody tr:hover { background: #fafafa; }
+
+/* ── Colores pago ── */
+.color-total   { color: #16a34a; font-weight: 600; }
+.color-adelanto{ color: #7c3aed; font-weight: 600; }
+.color-saldo   { color: #2563eb; font-weight: 600; }
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
-    .fila-3, .fila-4    { grid-template-columns: 1fr; }
-    .fila-2             { grid-template-columns: 1fr; }
-    .fila-testigo       { grid-template-columns: 1fr; }
+    .fila-3, .fila-4 { grid-template-columns: 1fr; }
+    .fila-2          { grid-template-columns: 1fr; }
+    .fila-testigo    { grid-template-columns: 1fr; }
 }

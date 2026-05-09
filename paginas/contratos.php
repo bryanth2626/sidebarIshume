@@ -197,7 +197,6 @@ $resultado = $conn->query($sql);
 </head>
 <body>
 
-<span class="badge-etapa">✅ Versión final — 100%</span>
 <h2 class="titulo-modulo">Registrar Contrato</h2>
 
 <div class="card">

@@ -191,12 +191,11 @@ hr.sep {
 
 /* ── Fila testigo ── */
 .fila-testigo {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
-    margin-bottom: 10px;
+    width: 100%;
+    margin-top: 12px;
 }
+
+
 
 /* ── Tabla ── */
 .card-tabla {

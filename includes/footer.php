@@ -1,5 +1,4 @@
 <!-- JS GLOBAL -->
-<script src="js/main.js"></script>
 <script src="js/proveedores.js"></script>
 <script>
     
@@ -8,15 +7,18 @@
 <script src="js/calendar.js"></script>
 <script src="js/eventos.js"></script>
 
-<!-- JS POR MÓDULO -->
 <?php
 $pagina = isset($_GET['pagina']) ? $_GET['pagina'] : 'dashboard';
+?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<?php
 $jsModulo = "js/" . $pagina . ".js";
 
 if(file_exists($jsModulo)){
     echo '<script src="'.$jsModulo.'"></script>';
 }
 ?>
-
 </body>
 </html>

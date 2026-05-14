@@ -22,6 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $adelanto = floatval($_POST['adelanto'] ?? 0);
     $saldo = max(0, $total - $adelanto);
     $cantidad = intval($_POST['cantidad'] ?? 1);
+    $promo_combos   = intval($_POST['promo_combos'] ?? 0);
+    $promo_anuarios = intval($_POST['promo_anuarios'] ?? 0);
+    $promo_cuadros  = intval($_POST['promo_cuadros'] ?? 0);
 
     /* ── Evento ── */
     $fecha_evento     = $_POST['fecha_evento']     ?? null;
@@ -56,6 +59,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     VALUES (?,?,?,?,?,?,?,?)")
          ->execute([$idcliente, $idservicio, $idproforma, $fecha, $total, $adelanto, $saldo, $cantidad]);
     $idcontrato = $conn->lastInsertId();
+    /* ── Detalle Promoción ── */
+    if ($idservicio == 1) { // Promoción
+
+        if ($promo_combos > 0) {
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
+                            VALUES (?,?,?)")
+                ->execute([$idcontrato, 'Combo', $promo_combos]);
+        }
+
+        if ($promo_anuarios > 0) {
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
+                            VALUES (?,?,?)")
+                ->execute([$idcontrato, 'Anuario', $promo_anuarios]);
+        }
+
+        if ($promo_cuadros > 0) {
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
+                            VALUES (?,?,?)")
+                ->execute([$idcontrato, 'Cuadro', $promo_cuadros]);
+        }
+    }
 
     /* ── Relación principal ── */
     
@@ -155,8 +179,9 @@ $sql = "
         ses.hora       AS hora_sesion,
         GROUP_CONCAT(DISTINCT CONCAT(e.tipo,' x',e.cantidad)
             ORDER BY e.identrega SEPARATOR ' | ') AS entregas,
-        GROUP_CONCAT(DISTINCT CONCAT(t.nombre,' ',t.apellidos,' (',t.dni,')')
-            ORDER BY t.idtestigo SEPARATOR ' | ') AS testigos
+        GROUP_CONCAT(DISTINCT CONCAT(dc.servicio,' x',dc.cantidad)
+            ORDER BY dc.iddetalle SEPARATOR ' | ') AS detalle_promocion,    
+        GROUP_CONCAT(CONCAT(t.nombre,' ',t.apellidos,' (',t.dni,')') SEPARATOR ' | ') AS testigos
     FROM contratos co
     JOIN clientes c        ON co.idcliente  = c.idcliente
     JOIN servicios s       ON co.idservicio = s.idservicio
@@ -165,8 +190,8 @@ $sql = "
     LEFT JOIN eventos ev   ON co.idcontrato = ev.idcontrato
     LEFT JOIN sesiones ses ON co.idcontrato = ses.idcontrato AND ses.tipo_sesion = 'Pre-evento'
     LEFT JOIN entregas e   ON co.idcontrato = e.idcontrato
-    LEFT JOIN contrato_testigos ct ON co.idcontrato = ct.idcontrato
-    LEFT JOIN testigos t           ON ct.idtestigo  = t.idtestigo
+    LEFT JOIN detalle_contratos dc ON co.idcontrato = dc.idcontrato
+    LEFT JOIN testigos t ON co.idtestigo = t.idtestigo
     GROUP BY co.idcontrato
     ORDER BY co.idcontrato DESC
 ";
@@ -256,8 +281,42 @@ $resultado = $conn->query($sql);
     <div id="bloqueDetalleProforma" style="display:none;">
         <div class="bloque-proforma-info" id="infoProforma"></div>
     </div>
+    <!-- ── Detalle específico Promoción ── -->
+    <div id="bloquePromocionDetalle" style="display:none;">
+        <p class="seccion-titulo">🎓 Detalle de Promoción</p>
+        <div class="bloque-seccion">
+            <div class="fila fila-3">
+                <div class="campo">
+                    <label>Combos</label>
+                    <input type="number" name="promo_combos" min="0" value="0">
+                </div>
+
+                <div class="campo">
+                    <label>Anuarios</label>
+                    <input type="number" name="promo_anuarios" min="0" value="0">
+                </div>
+
+                <div class="campo">
+                    <label>Cuadros</label>
+                    <input type="number" name="promo_cuadros" min="0" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ── Detalles completos de la proforma ── -->
+    <div id="bloqueDetallesExtras" style="display:none; margin-top:15px;">
+        <button type="button" class="btn-detalles" onclick="toggleDetallesProforma()">
+            Ver / Ocultar detalles de la proforma
+        </button>
+
+        <div id="detallesProformaBox" class="detalles-box" style="display:none;">
+            <h4>Detalles de la Proforma</h4>
+            <ul id="listaDetallesProforma"></ul>
+        </div>
+    </div>
 
     <hr class="sep">
+
 
     <!-- ── Pago ── -->
     <p class="seccion-titulo">Detalles del Contrato</p>
@@ -341,6 +400,7 @@ $resultado = $conn->query($sql);
                 <th>Servicio</th>
                 <th>Paquete</th>
                 <th>Proforma</th>
+                <th>Detalle Promoción</th>
                 <th>Cant.</th>
                 <th>Total</th>
                 <th>Adelanto</th>
@@ -361,6 +421,11 @@ $resultado = $conn->query($sql);
             <td><?= htmlspecialchars($fila['servicio']) ?></td>
             <td><?= htmlspecialchars($fila['paquete']) ?></td>
             <td><?= htmlspecialchars($fila['proforma']) ?></td>
+            <td>
+                <?= $fila['detalle_promocion']
+                    ? htmlspecialchars($fila['detalle_promocion'])
+                    : '<span style="color:#aaa">—</span>' ?>
+            </td>
             <td><?= $fila['cantidad'] > 1 ? $fila['cantidad'] . ' alumnos' : '—' ?></td>
             
             <td class="color-total">S/ <?= number_format($fila['total'], 2) ?></td>
@@ -398,10 +463,19 @@ $resultado = $conn->query($sql);
 <!-- Pasar proformas desde PHP -->
 <script>
 const PROFORMAS = <?= json_encode($proformas_raw, JSON_UNESCAPED_UNICODE) ?>;
+
+const DETALLES_RAW = <?= json_encode(
+    $conn->query("
+        SELECT idproforma, detalle, orden_detalle
+        FROM proforma_detalles
+        ORDER BY idproforma, orden_detalle
+    ")->fetchAll(PDO::FETCH_ASSOC),
+    JSON_UNESCAPED_UNICODE
+) ?>;
 </script>
 
-<!-- Cargar JS después de que TODO el HTML exista -->
 <script src="js/contratos.js"></script>
+<!-- Cargar JS después de que TODO el HTML exista -->
 
 </body>
 </html>

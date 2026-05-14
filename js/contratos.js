@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bloqueEvento         = document.getElementById('bloqueEvento');
     const bloqueEntregas       = document.getElementById('bloqueEntregas');
     const listaEntregas        = document.getElementById('listaEntregas');
-
+    const bloquePromocionDetalle = document.getElementById('bloquePromocionDetalle');
     /* ── Entregas por proforma ── */
     // Clave: idproforma (según orden en BD)
     // Estructura: [{ tipo, cantidad }]
@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ocultar(bloqueSesionPre);
     ocultar(bloqueEvento);
     ocultar(bloqueEntregas);
+    ocultar(bloquePromocionDetalle);
 
     if (!idservicio) {
         elPaquete.innerHTML = '<option value="">Seleccione servicio primero</option>';
@@ -149,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ocultar(bloqueEvento);
         ocultar(bloqueEntregas);
         ocultar(bloqueAlumnos);
+        ocultar(bloquePromocionDetalle);
 
         if (!idpaquete) return;
 
@@ -179,6 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const porAlumno   = selected.dataset.porAlumno === '1';
         const nombrePf    = selected.dataset.nombreProforma;
         const nombreSvc   = elServicio.options[elServicio.selectedIndex]?.text || '';
+        // Mostrar detalle exclusivo para Promoción
+        if (nombreSvc === 'Promoción') {
+            mostrar(bloquePromocionDetalle);
+        } else {
+            ocultar(bloquePromocionDetalle);
+        }
         const nombrePaq   = elPaquete.options[elPaquete.selectedIndex]?.text   || '';
         const esGolden    = nombrePaq === 'Golden';
 
@@ -208,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const claveEntrega = `${nombreSvc}|${nombrePf}`;
         const entregasPredefinidas = ENTREGAS_POR_PROFORMA[claveEntrega] || [];
         cargarEntregas(entregasPredefinidas);
+        mostrarDetallesProforma(selected.value);
     });
 
     /* ── Calcular total por alumnos ── */
@@ -361,6 +370,43 @@ document.addEventListener('DOMContentLoaded', () => {
         // Muestra nuevamente el botón + Agregar
         document.getElementById('btnAgregarTestigo').style.display = 'inline-block';
     };
+        /* ── Detalles de proforma (mostrar / ocultar) ── */
+    window.toggleDetallesProforma = function () {
+        const box = document.getElementById("detallesProformaBox");
+
+        if (!box) return;
+
+        box.style.display =
+            (box.style.display === "block") ? "none" : "block";
+    };
+
+    function mostrarDetallesProforma(idproforma) {
+        const lista = document.getElementById("listaDetallesProforma");
+        const bloque = document.getElementById("bloqueDetallesExtras");
+        const box = document.getElementById("detallesProformaBox");
+
+        if (!lista || !bloque || !box) return;
+
+        lista.innerHTML = '';
+        box.style.display = 'none';
+
+        // DETALLES_RAW viene desde PHP
+        const detalles = DETALLES_RAW.filter(
+            d => String(d.idproforma) === String(idproforma)
+        );
+
+        if (detalles.length > 0) {
+            detalles.forEach(d => {
+                const li = document.createElement("li");
+                li.textContent = d.detalle;
+                lista.appendChild(li);
+            });
+
+            bloque.style.display = "block";
+        } else {
+            bloque.style.display = "none";
+        }
+    }
 
     /* ── Eventos de pago ── */
     elTotal?.addEventListener('input',    calcularSaldo);

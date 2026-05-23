@@ -66,7 +66,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
     }
 }
+/* =========================
+   EDITAR DATOS
+========================= */
+
+if(isset($_POST['editar'])){
+
+    $idcompra  = $_POST['idcompra'];
+    $idproveedor = $_POST['idproveedor'];
+
+    $nombre   = $_POST['nombre_proveedor'];
+    $producto = $_POST['producto'];
+    $fecha    = $_POST['fecha_compra'];
+    $cantidad = $_POST['cantidad'];
+    $precio   = $_POST['precio'];
+    $adelanto = $_POST['adelanto'];
+
+    $total = $cantidad * $precio;
+    $saldo = $total - $adelanto;
+
+    try{
+
+        $conn->beginTransaction();
+
+        /* ACTUALIZAR PROVEEDOR */
+        $sqlProveedor = "UPDATE proveedores 
+                         SET nombre_proveedor = :nombre
+                         WHERE idproveedor = :idproveedor";
+
+        $stmt = $conn->prepare($sqlProveedor);
+
+        $stmt->execute([
+            'nombre' => $nombre,
+            'idproveedor' => $idproveedor
+        ]);
+
+        /* ACTUALIZAR COMPRA */
+        $sqlCompra = "UPDATE compras 
+                      SET fecha_compra = :fecha,
+                          total = :total,
+                          adelanto = :adelanto,
+                          saldo = :saldo
+                      WHERE idcompra = :idcompra";
+
+        $stmt = $conn->prepare($sqlCompra);
+
+        $stmt->execute([
+            'fecha' => $fecha,
+            'total' => $total,
+            'adelanto' => $adelanto,
+            'saldo' => $saldo,
+            'idcompra' => $idcompra
+        ]);
+
+        /* ACTUALIZAR DETALLE */
+        $sqlDetalle = "UPDATE detalle_compras
+                       SET producto = :producto,
+                           cantidad = :cantidad,
+                           precio = :precio
+                       WHERE idcompra = :idcompra";
+
+        $stmt = $conn->prepare($sqlDetalle);
+
+        $stmt->execute([
+            'producto' => $producto,
+            'cantidad' => $cantidad,
+            'precio' => $precio,
+            'idcompra' => $idcompra
+        ]);
+
+        $conn->commit();
+
+        echo "<div class='alert alert-success'>Compra editada correctamente</div>";
+
+    }catch(Exception $e){
+
+        $conn->rollBack();
+
+        echo "<div class='alert alert-danger'>Error: ".$e->getMessage()."</div>";
+    }
+}
 ?>
+
 
 <div class="contenedor-modulo">
 
@@ -189,6 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
                     <th>Total</th>
                     <th>Adelanto</th>
                     <th>Saldo</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
 

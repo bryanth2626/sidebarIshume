@@ -165,18 +165,20 @@ if(isset($_POST['editar'])){
         <div class="cuerpo-tarjeta">
 
             <form class="formulario-proveedor" action="index.php?pagina=proveedores" method="POST">
+                <input type="hidden" id="idcompra" name="idcompra">
+                <input type="hidden" id="idproveedor" name="idproveedor">
 
                 <div class="row g-3">
 
                     <!-- FILA 1 -->
                     <div class="col-md-6 campo-formulario">
                         <label class="form-label fw-semibold">Proveedor</label>
-                        <input type="text" name="nombre_proveedor" class="form-control" required>
+                        <input type="text" id="nombre_proveedor" name="nombre_proveedor" class="form-control" required>
                     </div>
 
                     <div class="col-md-6 campo-formulario">
                         <label class="form-label fw-semibold">Producto</label>
-                        <input type="text" name="producto" class="form-control" required>
+                        <input type="text" id="producto" name="producto" class="form-control" required>
                     </div>
 
                     <!-- FILA 2 -->
@@ -192,7 +194,7 @@ if(isset($_POST['editar'])){
 
                     <div class="col-md-4 campo-formulario">
                         <label class="form-label fw-semibold">Fecha</label>
-                        <input type="datetime-local" name="fecha_compra" class="form-control" required>
+                        <input type="datetime-local" id="fecha_compra" name="fecha_compra" class="form-control" required>
                     </div>
 
                     <!-- FILA 3 -->
@@ -235,6 +237,7 @@ if(isset($_POST['editar'])){
     $sql = "
     SELECT 
         p.idproveedor,
+        c.idcompra,
         p.nombre_proveedor,
         dc.producto,
         dc.cantidad,
@@ -289,6 +292,28 @@ if(isset($_POST['editar'])){
                     <td class="color-total"><?= $fila['total'] ?></td>
                     <td class="color-adelanto"><?= $fila['adelanto'] ?></td>
                     <td class="color-saldo"><?= $fila['saldo'] ?></td>
+                    <td>
+                        <td>
+
+                            <button 
+                                type="button"
+                                class="btn btn-warning btn-sm btn-editar"
+
+                                data-idcompra="<?= $fila['idcompra'] ?>"
+                                data-idproveedor="<?= $fila['idproveedor'] ?>"
+                                data-proveedor="<?= $fila['nombre_proveedor'] ?>"
+                                data-producto="<?= $fila['producto'] ?>"
+                                data-cantidad="<?= $fila['cantidad'] ?>"
+                                data-precio="<?= $fila['precio'] ?>"
+                                data-fecha="<?= date('Y-m-d\TH:i', strtotime($fila['fecha_compra'])) ?>"
+                                data-adelanto="<?= $fila['adelanto'] ?>"
+
+                            >
+                                Editar
+                            </button>
+
+                        </td>
+                    </td>
                 </tr>
             <?php endwhile; ?>
             </tbody>

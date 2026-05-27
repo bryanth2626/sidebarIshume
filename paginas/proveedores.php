@@ -1,10 +1,68 @@
 <?php
 include 'config/conexion.php';
+/* =========================
+   ELIMINAR
+========================= */
+
+if(isset($_GET['eliminar'])){
+
+    $idcompra = $_GET['eliminar'];
+    $idproveedor = $_GET['proveedor'];
+
+    try{
+
+        $conn->beginTransaction();
+
+        /* 1. ELIMINAR DETALLE */
+        $sqlDetalle = "DELETE FROM detalle_compras
+                       WHERE idcompra = :idcompra";
+
+        $stmt = $conn->prepare($sqlDetalle);
+
+        $stmt->execute([
+            'idcompra' => $idcompra
+        ]);
+
+        /* 2. ELIMINAR COMPRA */
+        $sqlCompra = "DELETE FROM compras
+                      WHERE idcompra = :idcompra";
+
+        $stmt = $conn->prepare($sqlCompra);
+
+        $stmt->execute([
+            'idcompra' => $idcompra
+        ]);
+
+        /* 3. ELIMINAR PROVEEDOR */
+        $sqlProveedor = "DELETE FROM proveedores
+                         WHERE idproveedor = :idproveedor";
+
+        $stmt = $conn->prepare($sqlProveedor);
+
+        $stmt->execute([
+            'idproveedor' => $idproveedor
+        ]);
+
+        $conn->commit();
+
+        echo "<div class='alert alert-success'>
+                Compra eliminada correctamente
+              </div>";
+
+    }catch(Exception $e){
+
+        $conn->rollBack();
+
+        echo "<div class='alert alert-danger'>
+                Error: ".$e->getMessage()."
+              </div>";
+    }
+}
 
 /* =========================
    INSERTAR DATOS (3 TABLAS)
 ========================= */
-if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['editar'])){
 
     $nombre   = $_POST['nombre_proveedor'];
     $producto = $_POST['producto'];
@@ -215,7 +273,7 @@ if(isset($_POST['editar'])){
 
                     <!-- BOTÓN -->
                     <div class="col-12 text-end mt-2">
-                        <button type="submit" class="btn btn-brand fw-semibold">
+                       <button type="submit" id="btnGuardar" class="btn btn-brand fw-semibold">
                             <i class='bx bxs-save me-1'></i> Guardar Compra
                         </button>
                     </div>
@@ -293,26 +351,31 @@ if(isset($_POST['editar'])){
                     <td class="color-adelanto"><?= $fila['adelanto'] ?></td>
                     <td class="color-saldo"><?= $fila['saldo'] ?></td>
                     <td>
-                        <td>
 
-                            <button 
-                                type="button"
-                                class="btn btn-warning btn-sm btn-editar"
+                        <button 
+                            type="button"
+                            class="btn btn-warning btn-sm btn-editar"
 
-                                data-idcompra="<?= $fila['idcompra'] ?>"
-                                data-idproveedor="<?= $fila['idproveedor'] ?>"
-                                data-proveedor="<?= $fila['nombre_proveedor'] ?>"
-                                data-producto="<?= $fila['producto'] ?>"
-                                data-cantidad="<?= $fila['cantidad'] ?>"
-                                data-precio="<?= $fila['precio'] ?>"
-                                data-fecha="<?= date('Y-m-d\TH:i', strtotime($fila['fecha_compra'])) ?>"
-                                data-adelanto="<?= $fila['adelanto'] ?>"
+                            data-idcompra="<?= $fila['idcompra'] ?>"
+                            data-idproveedor="<?= $fila['idproveedor'] ?>"
+                            data-proveedor="<?= $fila['nombre_proveedor'] ?>"
+                            data-producto="<?= $fila['producto'] ?>"
+                            data-cantidad="<?= $fila['cantidad'] ?>"
+                            data-precio="<?= $fila['precio'] ?>"
+                            data-fecha="<?= date('Y-m-d\TH:i', strtotime($fila['fecha_compra'])) ?>"
+                            data-adelanto="<?= $fila['adelanto'] ?>"
+                        >
+                            Editar
+                        </button>
 
-                            >
-                                Editar
-                            </button>
+                        <a 
+                            href="index.php?pagina=proveedores&eliminar=<?= $fila['idcompra'] ?>&proveedor=<?= $fila['idproveedor'] ?>"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('¿Eliminar compra?')"
+                        >
+                            Eliminar
+                        </a>
 
-                        </td>
                     </td>
                 </tr>
             <?php endwhile; ?>

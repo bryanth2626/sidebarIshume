@@ -5,16 +5,37 @@
    ============================================================ */
 include 'config/conexion.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+/* =========================
+   ELIMINAR
+========================= */
+if(isset($_GET['eliminar'])){
+    $id = $_GET['eliminar'];
+    try{
+        $conn->beginTransaction();
+        $conn->prepare("DELETE FROM entregas WHERE idcontrato=?")->execute([$id]);
+        $conn->prepare("DELETE FROM sesiones WHERE idcontrato=?")->execute([$id]);
+        $conn->prepare("DELETE FROM eventos WHERE idcontrato=?")->execute([$id]);
+        $conn->prepare("DELETE FROM detalle_contratos WHERE idcontrato=?")->execute([$id]);
+        $conn->prepare("DELETE FROM contratos WHERE idcontrato=?")->execute([$id]);
+        $conn->commit();
+        echo "<div class='ok'>Contrato eliminado</div>";
+    }catch(Exception $e){
+        $conn->rollBack();
+        echo $e->getMessage();
+    }
+}
 
-    /* ── Cliente ── */
+/* =========================
+   INSERTAR
+========================= */
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && !isset($_POST['editar'])) {
+
     $dni       = trim($_POST['dni']            ?? '');
     $nombre    = trim($_POST['nombre_cliente'] ?? '');
     $apellidos = trim($_POST['apellidos']      ?? '');
     $direccion = trim($_POST['direccion']      ?? '');
     $telefono  = trim($_POST['telefono']       ?? '');
 
-    /* ── Contrato ── */
     $idservicio = $_POST['idservicio']     ?? null;
     $idproforma = $_POST['idproforma']     ?? null;
     $fecha      = $_POST['fecha_contrato'] ?? date('Y-m-d H:i:s');
@@ -26,21 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $promo_anuarios = intval($_POST['promo_anuarios'] ?? 0);
     $promo_cuadros  = intval($_POST['promo_cuadros'] ?? 0);
 
-    /* ── Evento ── */
     $fecha_evento     = $_POST['fecha_evento']     ?? null;
     $hora_evento      = $_POST['hora_evento']      ?? null;
     $local_evento     = $_POST['local_evento']     ?? null;
     $ubicacion_evento = $_POST['ubicacion_evento'] ?? null;
 
-    /* ── Sesión (pre-evento) ── */
     $fecha_sesion = $_POST['fecha_sesion'] ?? null;
     $hora_sesion  = $_POST['hora_sesion']  ?? null;
     $lugar_sesion = $_POST['lugar_sesion'] ?? null;
 
-    /* ── Entregas ── */
-    $entregas_tipos     = $_POST['entrega_tipo']     ?? [];
+    $entregas_tipos      = $_POST['entrega_tipo']     ?? [];
     $entregas_cantidades = $_POST['entrega_cantidad'] ?? [];
-    $fecha_entrega      = $_POST['fecha_entrega']    ?? null;
+    $fecha_entrega       = $_POST['fecha_entrega']    ?? null;
 
     /* ── Buscar o crear cliente ── */
     $buscar = $conn->prepare("SELECT idcliente FROM clientes WHERE dni = ?");
@@ -48,101 +66,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($buscar->rowCount() > 0) {
         $idcliente = $buscar->fetch(PDO::FETCH_ASSOC)['idcliente'];
     } else {
-        $conn->prepare("INSERT INTO clientes (dni, nombre_cliente, apellidos, direccion, telefono)
-                        VALUES (?,?,?,?,?)")
+        $conn->prepare("INSERT INTO clientes (dni, nombre_cliente, apellidos, direccion, telefono) VALUES (?,?,?,?,?)")
              ->execute([$dni, $nombre, $apellidos, $direccion, $telefono]);
         $idcliente = $conn->lastInsertId();
     }
 
-    /* ── Contrato ── */
-    $conn->prepare("INSERT INTO contratos (idcliente, idservicio, idproforma, fecha_contrato, total, adelanto, saldo, cantidad)
-                    VALUES (?,?,?,?,?,?,?,?)")
+    /* ── Insertar contrato ── */
+    $conn->prepare("INSERT INTO contratos (idcliente, idservicio, idproforma, fecha_contrato, total, adelanto, saldo, cantidad) VALUES (?,?,?,?,?,?,?,?)")
          ->execute([$idcliente, $idservicio, $idproforma, $fecha, $total, $adelanto, $saldo, $cantidad]);
     $idcontrato = $conn->lastInsertId();
+
     /* ── Detalle Promoción ── */
-    if ($idservicio == 1) { // Promoción
-
-        if ($promo_combos > 0) {
-            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
-                            VALUES (?,?,?)")
+    if ($idservicio == 1) {
+        if ($promo_combos > 0)
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad) VALUES (?,?,?)")
                 ->execute([$idcontrato, 'Combo', $promo_combos]);
-        }
-
-        if ($promo_anuarios > 0) {
-            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
-                            VALUES (?,?,?)")
+        if ($promo_anuarios > 0)
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad) VALUES (?,?,?)")
                 ->execute([$idcontrato, 'Anuario', $promo_anuarios]);
-        }
-
-        if ($promo_cuadros > 0) {
-            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad)
-                            VALUES (?,?,?)")
+        if ($promo_cuadros > 0)
+            $conn->prepare("INSERT INTO detalle_contratos (idcontrato, servicio, cantidad) VALUES (?,?,?)")
                 ->execute([$idcontrato, 'Cuadro', $promo_cuadros]);
-        }
     }
 
-    /* ── Relación principal ── */
-    
-
-    /* ── Testigos ── */
-    /* ── Testigos ── */
-    if (!empty($_POST['testigo_dni'])) {
-        foreach ($_POST['testigo_dni'] as $i => $dni_t) {
-            if (empty(trim($dni_t))) continue;
-
-            $nombre_t    = $_POST['testigo_nombre'][$i]    ?? '';
-            $apellidos_t = $_POST['testigo_apellidos'][$i] ?? '';
-            $direccion_t = $_POST['testigo_direccion'][$i] ?? '';
-            $telefono_t  = $_POST['testigo_telefono'][$i]  ?? '';
-
-
-            // Buscar si ya existe ese testigo por DNI
-            $b = $conn->prepare("SELECT idtestigo FROM testigos WHERE dni = ?");
-            $b->execute([trim($dni_t)]);
-
-            if ($b->rowCount() > 0) {
-                $idtestigo = $b->fetch()['idtestigo'];
-            } else {
-                $conn->prepare("INSERT INTO testigos (dni, nombre, apellidos, direccion, telefono)
-                                VALUES (?,?,?,?,?)")
-                    ->execute([trim($dni_t), $nombre_t, $apellidos_t, $direccion_t, $telefono_t]);
-                $idtestigo = $conn->lastInsertId();
-            }
-
-            // Asociar testigo al contrato
-            $conn->prepare("INSERT INTO contrato_testigos (idcontrato, idtestigo)
-                            VALUES (?, ?)")
-                ->execute([$idcontrato, $idtestigo]);
-        }
-    }
-
-    /* ── Sesión pre-evento (Golden) ── */
-    if (!empty($fecha_sesion)) {
-        $conn->prepare("INSERT INTO sesiones (idcontrato, tipo_sesion, fecha, hora, lugar)
-                        VALUES (?,?,?,?,?)")
+    /* ── Sesión pre-evento ── */
+    if (!empty($fecha_sesion))
+        $conn->prepare("INSERT INTO sesiones (idcontrato, tipo_sesion, fecha, hora, lugar) VALUES (?,?,?,?,?)")
              ->execute([$idcontrato, 'Pre-evento', $fecha_sesion, $hora_sesion, $lugar_sesion]);
-    }
 
     /* ── Evento ── */
-    if (!empty($fecha_evento)) {
-        $conn->prepare("INSERT INTO eventos (idcontrato, fecha_evento, hora, `local`, ubicacion)
-                        VALUES (?,?,?,?,?)")
+    if (!empty($fecha_evento))
+        $conn->prepare("INSERT INTO eventos (idcontrato, fecha_evento, hora, `local`, ubicacion) VALUES (?,?,?,?,?)")
              ->execute([$idcontrato, $fecha_evento, $hora_evento, $local_evento, $ubicacion_evento]);
-    }
 
     /* ── Entregas ── */
     if (!empty($entregas_tipos)) {
         foreach ($entregas_tipos as $i => $tipo) {
             if (empty(trim($tipo))) continue;
             $cant = $entregas_cantidades[$i] ?? 1;
-            $conn->prepare("INSERT INTO entregas (idcontrato, tipo, cantidad, fecha_entrega)
-                            VALUES (?,?,?,?)")
+            $conn->prepare("INSERT INTO entregas (idcontrato, tipo, cantidad, fecha_entrega) VALUES (?,?,?,?)")
                  ->execute([$idcontrato, trim($tipo), $cant, $fecha_entrega ?: null]);
         }
     }
 
     header("Location: index.php?pagina=contratos&ok=1");
     exit;
+}
+
+/* =========================
+   EDITAR
+========================= */
+if(isset($_POST['editar'])){
+    $idcontrato = $_POST['idcontrato'];
+    $total      = $_POST['total'];
+    $adelanto   = $_POST['adelanto'];
+    $saldo      = $total - $adelanto;
+
+    $conn->prepare("UPDATE contratos SET total=?, adelanto=?, saldo=? WHERE idcontrato=?")
+         ->execute([$total, $adelanto, $saldo, $idcontrato]);
+
+    echo "Contrato editado";
 }
 
 /* ── Cargar servicios desde BD ── */
@@ -180,8 +163,7 @@ $sql = "
         GROUP_CONCAT(DISTINCT CONCAT(e.tipo,' x',e.cantidad)
             ORDER BY e.identrega SEPARATOR ' | ') AS entregas,
         GROUP_CONCAT(DISTINCT CONCAT(dc.servicio,' x',dc.cantidad)
-            ORDER BY dc.iddetalle SEPARATOR ' | ') AS detalle_promocion,    
-        GROUP_CONCAT(CONCAT(t.nombre,' ',t.apellidos,' (',t.dni,')') SEPARATOR ' | ') AS testigos
+            ORDER BY dc.iddetalle SEPARATOR ' | ') AS detalle_promocion
     FROM contratos co
     JOIN clientes c        ON co.idcliente  = c.idcliente
     JOIN servicios s       ON co.idservicio = s.idservicio
@@ -191,7 +173,6 @@ $sql = "
     LEFT JOIN sesiones ses ON co.idcontrato = ses.idcontrato AND ses.tipo_sesion = 'Pre-evento'
     LEFT JOIN entregas e   ON co.idcontrato = e.idcontrato
     LEFT JOIN detalle_contratos dc ON co.idcontrato = dc.idcontrato
-    LEFT JOIN testigos t ON co.idtestigo = t.idtestigo
     GROUP BY co.idcontrato
     ORDER BY co.idcontrato DESC
 ";
@@ -211,6 +192,8 @@ $resultado = $conn->query($sql);
 
 <div class="card">
 <form method="POST">
+    <input type="hidden" name="idcontrato" id="idcontrato">
+    <input type="hidden" name="editar"     id="editar">
 
     <!-- ── Cliente ── -->
     <p class="seccion-titulo">👤 Datos del Cliente</p>
@@ -218,11 +201,9 @@ $resultado = $conn->query($sql);
         <div class="campo"><label>Nombre</label>
             <input type="text" name="nombre_cliente" placeholder="Ej: María" required></div>
         <div class="campo"><label>Apellidos</label>
-            <input type="text" name="apellidos" placeholder="Ej: García López" required></div>    
+            <input type="text" name="apellidos" placeholder="Ej: García López" required></div>
         <div class="campo"><label>DNI</label>
             <input type="text" name="dni" maxlength="20" placeholder="12345678" required></div>
-    
-        
     </div>
     <div class="fila fila-2">
         <div class="campo"><label>Dirección</label>
@@ -230,10 +211,6 @@ $resultado = $conn->query($sql);
         <div class="campo"><label>Teléfono</label>
             <input type="text" name="telefono" placeholder="987 654 321"></div>
     </div>
-    <!-- ── Testigos ── -->
-    <p class="seccion-titulo">👥 Testigos / Personas Relacionadas</p>
-    <button type="button" class="btn-agregar" onclick="agregarTestigo()">+ Agregar</button>
-    <div id="testigosContainer" style="margin-top:12px;"></div>
 
     <hr class="sep">
 
@@ -281,6 +258,7 @@ $resultado = $conn->query($sql);
     <div id="bloqueDetalleProforma" style="display:none;">
         <div class="bloque-proforma-info" id="infoProforma"></div>
     </div>
+
     <!-- ── Detalle específico Promoción ── -->
     <div id="bloquePromocionDetalle" style="display:none;">
         <p class="seccion-titulo">🎓 Detalle de Promoción</p>
@@ -290,12 +268,10 @@ $resultado = $conn->query($sql);
                     <label>Combos</label>
                     <input type="number" name="promo_combos" min="0" value="0">
                 </div>
-
                 <div class="campo">
                     <label>Anuarios</label>
                     <input type="number" name="promo_anuarios" min="0" value="0">
                 </div>
-
                 <div class="campo">
                     <label>Cuadros</label>
                     <input type="number" name="promo_cuadros" min="0" value="0">
@@ -303,12 +279,12 @@ $resultado = $conn->query($sql);
             </div>
         </div>
     </div>
+
     <!-- ── Detalles completos de la proforma ── -->
     <div id="bloqueDetallesExtras" style="display:none; margin-top:15px;">
         <button type="button" class="btn-detalles" onclick="toggleDetallesProforma()">
             Ver / Ocultar detalles de la proforma
         </button>
-
         <div id="detallesProformaBox" class="detalles-box" style="display:none;">
             <h4>Detalles de la Proforma</h4>
             <ul id="listaDetallesProforma"></ul>
@@ -317,9 +293,8 @@ $resultado = $conn->query($sql);
 
     <hr class="sep">
 
-
     <!-- ── Pago ── -->
-    <p class="seccion-titulo">Detalles del Contrato</p>
+    <p class="seccion-titulo">💰 Detalles del Contrato</p>
     <div class="fila fila-4">
         <div class="campo"><label>Fecha Contrato</label>
             <input type="datetime-local" name="fecha_contrato"></div>
@@ -333,7 +308,7 @@ $resultado = $conn->query($sql);
 
     <hr class="sep">
 
-    <!-- ── Sesión pre-evento (Golden) ── -->
+    <!-- ── Sesión pre-evento ── -->
     <div id="bloqueSesionPre" style="display:none;">
         <p class="seccion-titulo">📸 Pre-Evento (Sesión Fotográfica)</p>
         <div class="bloque-seccion">
@@ -379,8 +354,6 @@ $resultado = $conn->query($sql);
 
     <hr class="sep">
 
-    
-
     <button type="submit" class="btn-guardar">Guardar Contrato</button>
 
 </form>
@@ -396,7 +369,6 @@ $resultado = $conn->query($sql);
                 <th>DNI</th>
                 <th>Cliente</th>
                 <th>Teléfono</th>
-                <th>Testigos</th>
                 <th>Servicio</th>
                 <th>Paquete</th>
                 <th>Proforma</th>
@@ -408,6 +380,7 @@ $resultado = $conn->query($sql);
                 <th>Evento</th>
                 <th>Pre-Evento</th>
                 <th>Entregas</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -417,7 +390,6 @@ $resultado = $conn->query($sql);
             <td><?= htmlspecialchars($fila['dni']) ?></td>
             <td><?= htmlspecialchars($fila['nombre_cliente'] . ' ' . $fila['apellidos']) ?></td>
             <td><?= htmlspecialchars($fila['telefono'] ?? '—') ?></td>
-            <td><?= $fila['testigos'] ? htmlspecialchars($fila['testigos']) : '<span style="color:#aaa">—</span>' ?></td>
             <td><?= htmlspecialchars($fila['servicio']) ?></td>
             <td><?= htmlspecialchars($fila['paquete']) ?></td>
             <td><?= htmlspecialchars($fila['proforma']) ?></td>
@@ -427,11 +399,9 @@ $resultado = $conn->query($sql);
                     : '<span style="color:#aaa">—</span>' ?>
             </td>
             <td><?= $fila['cantidad'] > 1 ? $fila['cantidad'] . ' alumnos' : '—' ?></td>
-            
             <td class="color-total">S/ <?= number_format($fila['total'], 2) ?></td>
             <td class="color-adelanto">S/ <?= number_format($fila['adelanto'], 2) ?></td>
             <td class="color-saldo">S/ <?= number_format($fila['saldo'], 2) ?></td>
-            
             <td>
                 <?php if ($fila['fecha_evento']): ?>
                     🎬 <?= date('d/m/Y', strtotime($fila['fecha_evento'])) ?>
@@ -452,15 +422,40 @@ $resultado = $conn->query($sql);
                 <?php endif; ?>
             </td>
             <td><?= $fila['entregas'] ? htmlspecialchars($fila['entregas']) : '<span style="color:#aaa">—</span>' ?></td>
+            <td class="col-acciones">
+
+                <button
+                    type="button"
+                    class="btn-editar"
+                    title="Editar"
+                    data-id="<?= $fila['idcontrato'] ?>"
+                    data-dni="<?= htmlspecialchars($fila['dni']) ?>"
+                    data-nombre="<?= htmlspecialchars($fila['nombre_cliente']) ?>"
+                    data-apellidos="<?= htmlspecialchars($fila['apellidos']) ?>"
+                    data-telefono="<?= htmlspecialchars($fila['telefono']) ?>"
+                    data-total="<?= $fila['total'] ?>"
+                    data-adelanto="<?= $fila['adelanto'] ?>"
+                >
+                    🖊️
+                </button>
+
+                <a
+                    class="btn-eliminar"
+                    href="index.php?pagina=contratos&eliminar=<?= $fila['idcontrato'] ?>"
+                    onclick="return confirm('Eliminar contrato <?= $fila['idcontrato'] ?>?')"
+                    title="Eliminar"
+                >
+                    🗑️
+                </a>
+
+            </td>
         </tr>
         <?php endwhile; ?>
         </tbody>
     </table>
 </div>
 
-
-
-<!-- Pasar proformas desde PHP -->
+<!-- Pasar datos desde PHP al JS -->
 <script>
 const PROFORMAS = <?= json_encode($proformas_raw, JSON_UNESCAPED_UNICODE) ?>;
 
@@ -475,7 +470,6 @@ const DETALLES_RAW = <?= json_encode(
 </script>
 
 <script src="js/contratos.js"></script>
-<!-- Cargar JS después de que TODO el HTML exista -->
 
 </body>
 </html>

@@ -194,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!porAlumno) {
             if (elTotal) elTotal.value = precio.toFixed(2);
             calcularSaldo();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
             ocultar(bloqueAlumnos);
         } else {
             // Precio por alumno: mostrar bloque y calcular
@@ -414,4 +418,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Init ── */
     calcularSaldo();
+    //
+    const botonesEditar = document.querySelectorAll(".btn-editar");
+
+    botonesEditar.forEach(boton => {
+
+        boton.addEventListener("click", () => {
+
+            document.getElementById("idcontrato").value =
+                boton.dataset.id;
+
+            document.querySelector("[name='dni']").value =
+                boton.dataset.dni;
+
+            document.querySelector("[name='nombre_cliente']").value =
+                boton.dataset.nombre;
+
+            document.querySelector("[name='apellidos']").value =
+                boton.dataset.apellidos;
+
+            document.querySelector("[name='telefono']").value =
+                boton.dataset.telefono;
+
+            document.getElementById("total").value =
+                boton.dataset.total;
+
+            document.getElementById("adelanto").value =
+                boton.dataset.adelanto;
+
+            calcularSaldo();
+        });
+
+    });
 });
